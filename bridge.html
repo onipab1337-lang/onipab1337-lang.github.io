@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gift Bridge</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+<script>
+(function () {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    const startParam = tg.initDataUnsafe?.start_param || "";
+    if (!startParam) { tg.close(); return; }
+
+    let slug = startParam;
+    let recipient = "";
+    try {
+        const padded = startParam.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((startParam.length + 3) % 4);
+        const decoded = atob(padded);
+        if (decoded.includes(":")) {
+            const parts = decoded.split(":");
+            slug = parts[0];
+            recipient = parts[1] || "";
+        }
+    } catch (_) { slug = startParam; }
+
+    const targetLink = recipient
+        ? `https://t.me/nft/${encodeURIComponent(slug)}?transfer=1&to=${encodeURIComponent(recipient)}`
+        : `https://t.me/nft/${encodeURIComponent(slug)}`;
+
+    tg.openTelegramLink(targetLink);
+    setTimeout(() => { tg.close(); }, 80);
+})();
+</script>
+</body>
+</html>
